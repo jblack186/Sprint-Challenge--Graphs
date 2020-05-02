@@ -8,34 +8,81 @@ from ast import literal_eval
 # Load world
 world = World()
 
-
 # You may uncomment the smaller graphs for development and testing purposes.
+
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
 map_file = "maps/main_maze.txt"
 
-# Loads the map into a dictionary
+
 room_graph=literal_eval(open(map_file, "r").read())
 world.load_graph(room_graph)
-
-# Print an ASCII map
 world.print_rooms()
+player = Player("Name", world.starting_room)
 
-player = Player(world.starting_room)
 
-# Fill this out with directions to walk
-# traversal_path = ['n', 'n']
+# FILL THIS IN
 traversal_path = []
 
+directions = {'n':'s', 's':'n', 'e':'w', 'w':'e' }
+
+previous_direction = [None]
+rooms = {}
+visited = {}
+
+rooms[0] = player.current_room.get_exits()
+print(rooms[0])
+visited[0] = player.current_room.get_exits()
+
+while len(rooms) < len(room_graph) - 1:
+    # print(player.current_room, player.current_room.id)
+    # print(previous_direction)
+    # print(rooms)
+    # print(player.current_room)
+    if player.current_room.id not in rooms:
+        rooms[player.current_room.id] = player.current_room.get_exits()
+        visited[player.current_room.id] = player.current_room.get_exits()
+        last_direction = previous_direction[-1]
+        # print(player.current_room)
+        # print(previous_direction)
+        visited[player.current_room.id].remove(last_direction)
+        # print(rooms)
+        # print(visited)
+    
+    # print(f"id: {visited[player.current_room.id]}")
+    while len(visited[player.current_room.id]) < 1:
+        reverse = previous_direction.pop()
+        traversal_path.append(reverse)
+        player.travel(reverse)
+
+    exit_direction = visited[player.current_room.id].pop(0)
+    # print(exit_direction)
+    # print(traversal_path)
+    traversal_path.append(exit_direction)
+    # print(traversal_path)
+    previous_direction.append(directions[exit_direction])
+    player.travel(exit_direction)
+
+    # print(len(room_graph) - len(rooms))
+    # if len(room_graph) - len(rooms) == 1:
+    #     rooms[player.current_room.id] = player.current_room.get_exits()
+    #     print(f"exits: {rooms[player.current_room.id]}")
+
+# world.print_rooms()
+
+# print(rooms)
+# print(visited)
+# print(traversal_path)
 
 
-# TRAVERSAL TEST - DO NOT MODIFY
+
+
+# TRAVERSAL TEST
 visited_rooms = set()
 player.current_room = world.starting_room
 visited_rooms.add(player.current_room)
-
 for move in traversal_path:
     player.travel(move)
     visited_rooms.add(player.current_room)
@@ -51,12 +98,11 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.printRoomDescription(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     else:
+#         print("I did not understand that command.")# You may uncomment the smaller graphs for development and testing purposes.
+
